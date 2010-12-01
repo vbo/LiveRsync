@@ -13,6 +13,6 @@ while True:
     for directory in config.sections():
         source = config.get(directory, 'source')
         dest = config.get(directory, 'dest')
-        command = 'rsync -rlptz -e ssh --out-format="[%t] %o:%f" --delete '  + source + ' ' + dest;
+        command = 'rsync -rlptz -e ssh --out-format="[%t] %o:%f" --delete '  + source + ' ' + dest + ' > /dev/null';
         os.system(command)
         

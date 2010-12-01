@@ -7,7 +7,7 @@ Basic usage
 -----------
 
     $ vim config.ini                     # You must add config section for every directory you want to sync
-    $ ./liversync.py                     # And run it
+    $ ./liversync.py &                   # And run it at background
 
     $ kill -9 `cat /tmp/LiveRsync.pid`   # And stop it, if needed
 
