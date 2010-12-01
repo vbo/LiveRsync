@@ -23,4 +23,4 @@ TODO
 
 1. (config) File exclusion
 2. (config) Other special options (dry-run etc...)
-3. Turn on/turn off scripts
+3. Being real daemon (check this out http://www.python.org/dev/peps/pep-3143/)
