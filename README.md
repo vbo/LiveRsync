@@ -1,4 +1,7 @@
-LiveRsync is very simple real time directory synchronizer based on rsync.
+LiveRsync
+=========
+
+LiveRsync is a simple real time directory synchronizer based on rsync.
 
 Basic usage
 -----------
@@ -6,7 +9,7 @@ Basic usage
     $ vim config.ini                     # You must add config section for every directory you want to sync
     $ ./liversync.py                     # And run it
 
-    $ kill -9 `cat /tmp/LiveRsync.pid`  # And stop it, if needed
+    $ kill -9 `cat /tmp/LiveRsync.pid`   # And stop it, if needed
 
 If you create, modify or delete file(s) in the directory, listed in config.ini LiveRsync instantly
 put your changes in the proper dir at the relevant remote server.
