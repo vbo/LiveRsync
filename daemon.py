@@ -2,6 +2,8 @@
 
 import os
 from ConfigParser import ConfigParser
+import subprocess
+
 import config
 
 class LiveRsync:
