@@ -24,8 +24,6 @@ class LiveRsync:
     def mainLoop(self):
         while True:
             for project, command in self.commands.items():
-                print command
-                exit()
                 os.system(command)        
 
 if __name__ == '__main__':

@@ -11,14 +11,14 @@ toolName = 'LiveRsync'
 def doStart():
     print "Trying to start", toolName
     dir = os.path.dirname(os.path.realpath(sys.argv[0]))
-    if not getPid():
+    if not getPid() or '-f' in sys.argv:
         pid = subprocess.Popen(os.path.join(dir, 'daemon.py')).pid
         createPidFile(pid)
         print "Started with pid", pid
     else:
-        print "Seems allready running"
+        print "Seems allready running. Specify -f to start anyway"
 
-def doStop():    
+def doStop():
     pid = getPid()
     if pid:
         os.kill(pid, signal.SIGKILL)
@@ -50,14 +50,14 @@ def getPid():
         return False
 
 if __name__ == "__main__":
-    toDo = sys.argv[1]    
+    toDo = sys.argv[1]
     if toDo == 'install':
         doInstall()
     elif toDo == 'start':
         doStart()
-    elif toDo == 'stop':        
+    elif toDo == 'stop':
         doStop()
     elif toDo == 'restart':
         doStop()
         doStart()
-        
+
