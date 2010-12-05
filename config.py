@@ -2,7 +2,10 @@
 
 import os.path
 
-baseCommand = 'rsync -rlptz -e ssh --out-format="[%t] %o:%f" --delete'
+_rsh = 'ssh -q -o PasswordAuthentication=no'
+baseCommand = "rsync -rlptzq -e '%s' --delete" % _rsh
+
 workingDir = os.path.expanduser('~/.liversync/')
 pidFileName = 'pidfile.pid'
 projectsFileName = 'projects.ini'
+shortLogFileName = 'status.log'
