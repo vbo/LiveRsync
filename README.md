@@ -38,7 +38,6 @@ For each directory you want to sync, you should add a separate project:
 TODO
 ----
 
-* Rewrite hodgie code in control script (argparse)
 * File exclusion support in projects.ini
 * Other special options support (dry-run etc...)
 * Decrease network load (pyinotify)
