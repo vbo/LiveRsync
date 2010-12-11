@@ -12,11 +12,12 @@ class Daemon:
 
     def prepareCommands(self):
         projects = ConfigParser()
+        path = config.workingDir + config.projectsFileName
         try:
-            projects.readfp(file(config.workingDir + config.projectsFileName))
+            projects.readfp(file(path))
         except IOError:
-            print 'No such file', config.workingDir + config.projectsFileName
-            exit()
+            raise Warning('No such file {0}'.format(path))
+        
         for project in projects.sections():
             source = projects.get(project, 'source')
             dest = projects.get(project, 'dest')
@@ -38,6 +39,9 @@ class Daemon:
     def _wait(self, processes):
         for process in processes:
             process.wait()
+
+class Warning (Exception):
+    pass
 
 if __name__ == '__main__':
     Daemon().mainLoop()

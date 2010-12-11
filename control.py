@@ -18,14 +18,18 @@ def doStart():
 
     errors = 0
     print "Checking projects. Be patient..."
-    for project, process in LiveRsync.Daemon().syncAll():
-        print '{0!r:<15}\t'.format(project),
-        result = process.wait()
-        errors += result
-        if result == 0:
-            print 'Ok'
-        else:
-            print 'Error'
+    try:
+        for project, process in LiveRsync.Daemon().syncAll():
+            print '{0!r:<15}\t'.format(project),
+            result = process.wait()
+            errors += result
+            if result == 0:
+                print 'Ok'
+            else:
+                print 'Error'
+    except LiveRsync.Warning as e:
+        print e
+        exit()
         
     if errors:
         print 'There were some errors.'
