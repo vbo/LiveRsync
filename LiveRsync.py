@@ -25,8 +25,14 @@ class Daemon:
             
     def mainLoop(self):
         while True:
+            processes = []
             for project, process in self.syncAll():
-                process.wait()
+                processes.append(process)
+            self._wait(processes)
+
+    def _wait(self, processes):
+        for process in processes:
+            process.wait()
 
 if __name__ == '__main__':
     Daemon().mainLoop()
