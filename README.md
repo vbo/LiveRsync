@@ -13,7 +13,7 @@ Installation and basic usage
  * Type `liversync --install` to prepare the working directory and example configuration file.
 
 Now you should `edit ~/.liversync/projects.ini` to add the config section for each directory
-(I call it "Project") you want to sync. Type `liversync start` to start daemon.
+(I call it "Project") you want to sync. Type `liversync --start` to start daemon.
 
 Now if you create, modify or delete file(s) in the directory, listed in `projects.ini`,
 LiveRsync instantly put your changes in the proper directory at the relevant remote server.
