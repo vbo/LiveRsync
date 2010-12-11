@@ -6,6 +6,9 @@ import subprocess
 import config
 
 class Daemon:
+    """Real time directory synchronization tool based on rsync"""
+    VERSION = 'LiveRsync 0.4'
+    
     def __init__(self):
         self.commands = {}
         self.prepareCommands()
