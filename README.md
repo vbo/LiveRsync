@@ -35,17 +35,9 @@ For each directory you want to sync, you should add a separate project:
     dest=me@my.remote.machine:path/on/remote/myProject/
 
 
-Error handling
---------------
-
-Nowadays, LiveRsync daemon dies if rsync returns error code. Usually this means bad connection
-or misspelling in the `projects.ini` file. Well, shit happens =) Check out error log in `~/.liversync/status.log`
-
-
 TODO
 ----
 
-* Improve error handling
 * Rewrite hodgie code in control script (argparse)
 * File exclusion support in projects.ini
 * Other special options support (dry-run etc...)
