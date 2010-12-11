@@ -4,36 +4,59 @@ import os
 import sys
 import subprocess
 import signal
+import shutil
 
 import config
+import LiveRsync
 
 toolName = 'LiveRsync'
 
-def doStart():
-    print "Trying to start", toolName
+def doStart():    
+    if getPid() and '-f' not in sys.argv:
+        print "Seems allready running or killed manually. Specify -f to start anyway"
+        exit();
+
+    errors = 0
+    print "Checking projects. Be patient..."
+    for project, process in LiveRsync.Daemon().syncAll():
+        print '{0!r:<15}\t'.format(project),
+        result = process.wait()
+        errors += result
+        if result == 0:
+            print 'Ok'
+        else:
+            print 'Error'
+        
+    if errors:
+        print 'There were some errors.'
+        print 'Check out your {dir} and try again'.format(dir=config.workingDir + config.projectsFileName);
+        exit();
+
     dir = os.path.dirname(os.path.realpath(sys.argv[0]))
-    if not getPid() or '-f' in sys.argv:
-        pid = subprocess.Popen(os.path.join(dir, 'daemon.py')).pid
-        createPidFile(pid)
-        print "Started with pid", pid
-    else:
-        print "Seems allready running. Specify -f to start anyway"
+    pid = subprocess.Popen(os.path.join(dir, 'LiveRsync.py')).pid
+    createPidFile(pid)
+    print "{0} started with pid {1}".format(toolName, pid)
+        
 
 def doStop():
     pid = getPid()
     if pid:
-        os.kill(pid, signal.SIGKILL)
+        try:
+            os.kill(pid, signal.SIGKILL)
+            print "{0} process (pid {1}) successfully killed".format(toolName, pid)
+        except OSError:
+            print "Seems allready killed"
         deletePidFile()
-        print "%s process (pid %d) successfully killed" % (toolName, pid)
     else:
         print 'Seems not running'
 
 def doInstall():
-    print 'Trying to create working dir (%s)' % config.workingDir
     try:
         os.makedirs(config.workingDir)
+        shutil.copyfile('projects-example.ini', config.workingDir + config.projectsFileName)
+        print '{0} installed'.format(toolName)
     except OSError:
-        print "Seems already exists"
+        print "Seems already installed. Remove {0} to uninstall".format(config.workingDir)
 
 def createPidFile(pid):
     with file(config.workingDir + config.pidFileName, 'w') as pidFile:

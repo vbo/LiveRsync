@@ -8,4 +8,3 @@ baseCommand = "rsync -rlptzq -e '%s' --delete" % _rsh
 workingDir = os.path.expanduser('~/.liversync/')
 pidFileName = 'pidfile.pid'
 projectsFileName = 'projects.ini'
-shortLogFileName = 'status.log'
