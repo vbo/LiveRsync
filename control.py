@@ -12,8 +12,8 @@ import LiveRsync
 toolName = 'LiveRsync'
 
 def doStart():    
-    if getPid() and '-f' not in sys.argv:
-        print "Seems allready running or killed manually. Specify -f to start anyway"
+    if getPid():
+        print "Seems allready running or killed manually"
         exit();
 
     errors = 0

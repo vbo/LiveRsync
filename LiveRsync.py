@@ -12,11 +12,16 @@ class Daemon:
 
     def prepareCommands(self):
         projects = ConfigParser()
-        projects.readfp(file(config.workingDir + config.projectsFileName))
+        try:
+            projects.readfp(file(config.workingDir + config.projectsFileName))
+        except IOError:
+            print 'No such file', config.workingDir + config.projectsFileName
+            exit()
         for project in projects.sections():
             source = projects.get(project, 'source')
             dest = projects.get(project, 'dest')
             self.commands[project] = ' '.join((config.baseCommand, source, dest))
+        
 
     def syncAll(self):
         for project, command in self.commands.items():
