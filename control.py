@@ -15,7 +15,7 @@ if __name__ == "__main__":
             group.add_argument('--{0}'.format(field), '-{0}'.format(field[:1]), action='store_const',
                                const=action, dest='action', help=action.__doc__)
     args = parser.parse_args()
-    try:
+    if callable(args.action):
         args.action()
-    except TypeError:
+    else:
         parser.print_usage()

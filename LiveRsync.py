@@ -9,6 +9,8 @@ import os
 import sys
 import signal
 import shutil
+import re
+
 
 class Config:
     __rsh = 'ssh -q -o PasswordAuthentication=no'
@@ -17,68 +19,112 @@ class Config:
     pidFileName = 'pidfile.pid'
     projectsFileName = 'projects.ini'
 
+
+class Warning (Exception):
+    pass
+
+
+class SyncProcess:
+    def __init__(self, command):
+        self.__command = command
+        self.__process = None
+
+    def run(self):
+        self.__process = subprocess.Popen(self.__command, shell=True, stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE)
+        return self
+    
+    def wait(self):
+        if not self.__process:
+            self.run()
+        return self.__process.wait()
+
+
 class Synchronizer:
     def __init__(self):
-        self.commands = {}
+        self.projects = {}
         self.prepareCommands()
 
     def prepareCommands(self):
-        projects = ConfigParser()
+        projectsConf = ConfigParser()
         path = Config.workingDir + Config.projectsFileName
         try:
-            projects.readfp(file(path))
+            projectsConf.readfp(file(path))
         except IOError:
             raise Warning('No such file {0}'.format(path))
         
-        for project in projects.sections():
-            source = projects.get(project, 'source')
-            dest = projects.get(project, 'dest')
-            self.commands[project] = ' '.join((Config.baseCommand, source, dest))
+        for projectName in projectsConf.sections():
+            project = {}
+            for k, v in projectsConf.items(projectName):
+                project[k] = v
+            source = project['source']
+            dest = project['dest']
+            project['command'] = '{0} {1} {2}'.format(Config.baseCommand, source, dest)
+            self.projects[projectName] = project;
 
     def syncAll(self):
-        for project, command in self.commands.items():
-            process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            yield project, process
+        for project, params in self.projects.items():
+            yield project, params, SyncProcess(params['command'])
             
     def loop(self):
         while True:
             processes = []
-            for project, process in self.syncAll():
-                processes.append(process)
+            for project, params, process in self.syncAll():
+                processes.append(process.run())
             self._wait(processes)
 
     def _wait(self, processes):
         for process in processes:
             process.wait()
 
-class Warning (Exception):
-    pass
 
 class Controller:
+    def __getAddedIds(self):
+        ids = []
+        command = 'ssh-add -l'
+        p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+        p.wait()
+        for line in p.stdout:
+            matched = re.match(r'''
+                (?P<length>\d+)\s
+                (?P<fingerprint>.*?)\s
+                (?P<path>.+)\s
+                \(
+                    (?P<type>.*)
+                \)$''', line, re.VERBOSE)
+            if matched: ids.append(matched.group('path'))
+        return ids
+
     def start(self):
         if self.__getPid():
             print "Seems allready running or killed manually"
-            exit();
-
-        errors = 0
-        print "Checking projects. Be patient..."
+            exit();        
+        print "Preparing projects."
         try:
-            for project, process in Synchronizer().syncAll():
-                print '{0!r:<15}\t'.format(project),
-                result = process.wait()
-                errors += result
-                if result == 0:
-                    print 'Ok'
-                else:
-                    print 'Error'
-            if errors:
-                raise Warning('There were some errors.\n' +
-                'Check out your {dir} and try again'.format(
-                    dir=Config.workingDir + Config.projectsFileName))
+            try:
+                errors = 0
+                addedIds = self.__getAddedIds()
+                for project, params, process in Synchronizer().syncAll():
+                    if params.has_key('id') and params['id'] not in addedIds:
+                        id = os.path.expanduser(params['id'])
+                        if id not in addedIds:
+                            subprocess.Popen('ssh-add ' + id, shell=True).wait()
+                            addedIds.append(id)
+                    print 'Checking {0!r}...'.format(project),
+                    sys.stdout.flush()
+                    result = process.wait()
+                    errors += result
+                    if result == 0: print 'Ok'
+                    else: print 'Error'
+                if errors:
+                    raise Warning('There were some errors.\n' +
+                    'Check out your {dir} and try again'.format(
+                        dir=Config.workingDir + Config.projectsFileName))
+            except KeyboardInterrupt:
+                raise Warning()            
         except Warning as e:
             print e
             exit()
-
         dir = os.path.dirname(os.path.realpath(sys.argv[0]))
         pid = subprocess.Popen(os.path.join(dir, 'LiveRsync.py')).pid
         self.__createPidFile(pid)
