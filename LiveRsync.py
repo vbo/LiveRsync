@@ -13,8 +13,8 @@ import re
 
 
 class Config:
-    __rsh = 'ssh -q -o PasswordAuthentication=no'
-    baseCommand = "rsync -rlptzq -e '%s' --delete" % __rsh
+    rsh = 'ssh -q -o PasswordAuthentication=no -i {id}'
+    baseCommand = "rsync -rlptzq -e '{rsh}' --delete"
     workingDir = os.path.expanduser('~/.liversync/')
     pidFileName = 'pidfile.pid'
     projectsFileName = 'projects.ini'
@@ -54,10 +54,11 @@ class Synchronizer:
         except IOError:
             raise Warning('No such file {0}'.format(path))        
         for projectName in projectsConf.sections():
-            project = {}
-            command = Config.baseCommand
+            project = {}            
             for k, v in projectsConf.items(projectName):
-                project[k] = v
+                project[k] = v            
+            rsh = Config.rsh.format(id=project['id'])
+            command = Config.baseCommand.format(rsh=rsh)
             if project.has_key('exclude'):
                 for exclude in project['exclude'].split(Config.excludeSeparator):
                     command += ' --exclude ' + exclude
