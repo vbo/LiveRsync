@@ -2,7 +2,7 @@ LiveRsync
 =========
 
 LiveRsync is a simple tool for Unix systems which provides real time synchronization of your files
-and directories with the remote machine. It written in python and based on rsync and ssh.
+and directories with the remote machine. It written in python and based on rsync.
 
 
 Installation and basic usage
@@ -24,6 +24,13 @@ machine and run/test script at the remote. Earlier I used SFTP for this porpose 
 to the SAVE event of my editor. LiveRsync has changed my life for the better =)
 
 
+Requirements
+------------
+
+ * ssh, ssh-add
+ * rsync
+
+
 Configuration syntax
 --------------------
 
@@ -34,12 +41,15 @@ For each directory you want to sync, you should add a separate project:
     source=/path/to/myProject/
     dest=me@my.remote.machine:path/on/remote/myProject/
     id=~/.ssh/id_rsa
+    exclude=/some-dir/ | .git
+
+`exclude` option is optional and contains pipe-separated list of rsync filter patterns.
+Type `man rsync` for details.
 
 
 TODO
 ----
 
-* File exclusion support in projects.ini
-* Other special options support (dry-run etc...)
-* Decrease network load on linux (pyinotify)
+* GUI: Tray icon, bubble with progress etc...
+* Decrease network load on linux (pyinotify)? Or it is trifle?
 * Being real daemon (check this out http://www.python.org/dev/peps/pep-3143/)

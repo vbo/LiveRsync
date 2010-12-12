@@ -18,6 +18,7 @@ class Config:
     workingDir = os.path.expanduser('~/.liversync/')
     pidFileName = 'pidfile.pid'
     projectsFileName = 'projects.ini'
+    excludeSeparator = ' | '
 
 
 class Warning (Exception):
@@ -47,19 +48,22 @@ class Synchronizer:
 
     def prepareCommands(self):
         projectsConf = ConfigParser()
-        path = Config.workingDir + Config.projectsFileName
+        path = Config.workingDir + Config.projectsFileName        
         try:
             projectsConf.readfp(file(path))
         except IOError:
-            raise Warning('No such file {0}'.format(path))
-        
+            raise Warning('No such file {0}'.format(path))        
         for projectName in projectsConf.sections():
             project = {}
+            command = Config.baseCommand
             for k, v in projectsConf.items(projectName):
                 project[k] = v
+            if project.has_key('exclude'):
+                for exclude in project['exclude'].split(Config.excludeSeparator):
+                    command += ' --exclude ' + exclude
             source = project['source']
             dest = project['dest']
-            project['command'] = '{0} {1} {2}'.format(Config.baseCommand, source, dest)
+            project['command'] = '{0} {1} {2}'.format(command, source, dest)
             self.projects[projectName] = project;
 
     def syncAll(self):
@@ -105,7 +109,7 @@ class Controller:
                 errors = 0
                 addedIds = self.__getAddedIds()
                 for project, params, process in Synchronizer().syncAll():
-                    if params.has_key('id') and params['id'] not in addedIds:
+                    if params['id'] not in addedIds:
                         id = os.path.expanduser(params['id'])
                         if id not in addedIds:
                             subprocess.Popen('ssh-add ' + id, shell=True).wait()
