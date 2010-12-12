@@ -32,9 +32,9 @@ class SyncProcess:
 
     def run(self):
         self.__process = subprocess.Popen(self.__command, shell=True, stdout=subprocess.PIPE,
-                                        stderr=subprocess.PIPE)
+                                          stderr=subprocess.PIPE)
         return self
-    
+
     def wait(self):
         if not self.__process:
             self.run()
@@ -48,15 +48,15 @@ class Synchronizer:
 
     def prepareCommands(self):
         projectsConf = ConfigParser()
-        path = Config.workingDir + Config.projectsFileName        
+        path = Config.workingDir + Config.projectsFileName
         try:
             projectsConf.readfp(file(path))
         except IOError:
-            raise Warning('No such file {0}'.format(path))        
+            raise Warning('No such file {0}'.format(path))
         for projectName in projectsConf.sections():
-            project = {}            
+            project = {}
             for k, v in projectsConf.items(projectName):
-                project[k] = v            
+                project[k] = v
             rsh = Config.rsh.format(id=project['id'])
             command = Config.baseCommand.format(rsh=rsh)
             if project.has_key('exclude'):
@@ -70,7 +70,7 @@ class Synchronizer:
     def syncAll(self):
         for project, params in self.projects.items():
             yield project, params, SyncProcess(params['command'])
-            
+
     def loop(self):
         while True:
             processes = []
@@ -103,7 +103,7 @@ class Controller:
     def start(self):
         if self.__getPid():
             print "Seems allready running or killed manually"
-            exit();        
+            exit();
         print "Preparing projects."
         try:
             try:
@@ -123,10 +123,10 @@ class Controller:
                     else: print 'Error'
                 if errors:
                     raise Warning('There were some errors.\n' +
-                    'Check out your {dir} and try again'.format(
-                        dir=Config.workingDir + Config.projectsFileName))
+                                  'Check out your {dir} and try again'.format(
+                                      dir=Config.workingDir + Config.projectsFileName))
             except KeyboardInterrupt:
-                raise Warning()            
+                raise Warning()
         except Warning as e:
             print e
             exit()
@@ -173,7 +173,7 @@ class Controller:
             return pid
         except IOError:
             return False
-        
+
 
 if __name__ == '__main__':
     Synchronizer().loop()
