@@ -130,7 +130,6 @@ class Controller:
         self.__createPidFile(pid)
         print "LiveRsync daemon started with pid", pid
 
-
     def kill(self):
         pid = self.__getPid()
         if pid:
@@ -169,6 +168,7 @@ class Controller:
             return pid
         except IOError:
             return False
+        
 
 if __name__ == '__main__':
     Synchronizer().loop()
