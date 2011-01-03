@@ -19,6 +19,7 @@ class Config:
     pidFileName = 'pidfile.pid'
     projectsFileName = 'projects.ini'
     excludeSeparator = ' | '
+    skipPrefix = '!'
 
 
 class Warning (Exception):
@@ -54,6 +55,7 @@ class Synchronizer:
         except IOError:
             raise Warning('No such file {0}'.format(path))
         for projectName in projectsConf.sections():
+            if projectName.startswith('!'): continue
             project = {}
             for k, v in projectsConf.items(projectName):
                 project[k] = v
